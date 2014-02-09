@@ -1,7 +1,7 @@
 package dirmap
 
 type DirMap struct {
-	dirmap map[string] *OrderedSet
+	dirmap map[string] *OrderedCapSet
 }
 
 func New() *DirMap {
@@ -11,7 +11,7 @@ func New() *DirMap {
 
 func (d *DirMap) Add(basename string, fullpath string) {
 	if _, exists := d.dirmap[basename]; exists == false {
-		d.dirmap[basename] = NewOrderedSet()
+		d.dirmap[basename] = NewOrderedCapSet()
 	}
 
 	d.dirmap[basename].Push(fullpath)
