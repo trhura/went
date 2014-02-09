@@ -4,7 +4,7 @@ type OrderedSet struct {
 	slice []interface{}
 }
 
-func New() (r *OrderedSet) {
+func NewOrderedSet() (r *OrderedSet) {
 	r = new(OrderedSet)
 	r.slice = make([]interface{}, 0)
 	return
