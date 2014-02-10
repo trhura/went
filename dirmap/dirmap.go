@@ -1,11 +1,12 @@
 package dirmap
 
 type DirMap struct {
-	dirmap map[string] *OrderedCapSet
+	dirmap map[string]*OrderedCapSet
 }
 
-func New() *DirMap {
+func NewDirMap() *DirMap {
 	d := new(DirMap)
+	d.dirmap = make(map[string]*OrderedCapSet)
 	return d
 }
 
@@ -23,8 +24,22 @@ func (d *DirMap) Has(basename string) bool {
 }
 
 func (d *DirMap) Get(basename string) (path string) {
-	if _, exists := d.dirmap[basename]; exists == true {
-		//return d.dirmap[basename].Get(0)
+	if d.Has(basename) == true {
+		return d.dirmap[basename].Get(0).(string)
 	}
 	return path
+}
+
+func (d *DirMap) GetAll(basename string) []string {
+	if d.Has(basename) == false {
+		return make([]string, 0)
+	}
+
+	set := d.dirmap[basename]
+	all := make([]string, set.Len())
+	for i, item := range set.GetAll() {
+		all[i] = item.(string)
+	}
+
+	return all
 }

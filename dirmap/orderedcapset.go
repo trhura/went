@@ -30,6 +30,10 @@ func (r *OrderedCapSet) Get(i int) (elem interface{}) {
 	return
 }
 
+func (r *OrderedCapSet) GetAll() []interface{} {
+	return r.slice
+}
+
 func (r *OrderedCapSet) RemoveAt(i int) {
 	if (i >= 0) {
 		before := r.slice[:i]
@@ -38,17 +42,17 @@ func (r *OrderedCapSet) RemoveAt(i int) {
 	}
 }
 
-const caplimit = 3
-func (r *OrderedCapSet) cap() {
-	if(r.Len() > caplimit) {
-		r.slice = r.slice[:caplimit]
+const sizelimit = 3
+func (r *OrderedCapSet) resize() {
+	if(r.Len() > sizelimit) {
+		r.slice = r.slice[:sizelimit]
 	}
 }
 
 func (r *OrderedCapSet) Prepend(elem interface{}) {
 	newslice := []interface{} {elem}
 	r.slice = append(newslice, r.slice...)
-	r.cap()
+	r.resize()
 }
 
 func (r *OrderedCapSet) Push(elem interface{}) {
