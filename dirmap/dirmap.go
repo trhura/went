@@ -20,7 +20,10 @@ func (d *DirMap) Add(basename string, fullpaths ...string) {
 
 	last := len(fullpaths) - 1
 	for i, _ := range fullpaths {
-		d.dirmap[basename].Push(fullpaths[last-i])
+		path := fullpaths[last-i]
+		if path != "" {
+	 		d.dirmap[basename].Push(path)
+		}
 	}
 }
 
@@ -60,7 +63,7 @@ func LoadDirMap (filename string) *DirMap {
 	d := NewDirMap()
 
 	f, err := os.Open(filename)
-	check_error(err)
+	if (err != nil) { return NewDirMap() }
 	defer f.Close()
 
 	reader := csv.NewReader(f)
@@ -87,9 +90,21 @@ func (d *DirMap) Save (filename string) {
 
 	records := make([][]string, 0)
 	for k, _ := range d.dirmap {
-		record := make([]string, 1)
+		record := make([]string, 4)
 		record[0] = k
-		record = append(record, d.GetAll(k)...)
+
+		for i := 0; i < 3; i++ {
+			var str string
+			item := d.dirmap[k].Get(i)
+			if (item == nil) {
+				str  = ""
+			} else {
+				str = item.(string)
+			}
+
+			record[i+1] = str
+		}
+
 		records = append(records, record)
 	}
 
