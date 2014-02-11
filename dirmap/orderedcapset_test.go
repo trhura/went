@@ -34,3 +34,16 @@ func TestPush(t *testing.T) {
 	assert.Equal(t, s.Get(2), 2)
 	assert.Equal(t, s.Len(), 3)
 }
+
+func TestShiftRight(t *testing.T) {
+	s := NewOrderedCapSet()
+	s.Push(3)
+	s.Push(2)
+	s.Push(1)
+	s.ShiftRight()
+
+	assert.Equal(t, s.Get(0), 2)
+	assert.Equal(t, s.Get(1), 3)
+	assert.Equal(t, s.Get(2), 1)
+	assert.Equal(t, s.Len(), 3)
+}

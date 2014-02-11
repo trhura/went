@@ -49,6 +49,12 @@ func (r *OrderedCapSet) resize() {
 	}
 }
 
+func (r *OrderedCapSet) ShiftRight () {
+	leftmost := r.slice[0]
+	r.RemoveAt(0)
+	r.slice = append(r.slice, leftmost)
+}
+
 func (r *OrderedCapSet) Prepend(elem interface{}) {
 	newslice := []interface{} {elem}
 	r.slice = append(newslice, r.slice...)

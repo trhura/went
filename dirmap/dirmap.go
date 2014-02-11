@@ -13,6 +13,12 @@ func NewDirMap() *DirMap {
 	return d
 }
 
+func (d *DirMap) ShiftRight (basename string) {
+	if d.Has(basename) == true {
+		d.dirmap[basename].ShiftRight()
+	}
+}
+
 func (d *DirMap) Add(basename string, fullpaths ...string) {
 	if _, exists := d.dirmap[basename]; exists == false {
 		d.dirmap[basename] = NewOrderedCapSet()
