@@ -23,67 +23,78 @@ func all_characters_are (s string, c rune) bool {
 	return true
 }
 
+type StrategyFunc func(string) bool
+
 func main() {
 	args := os.Args[1:]
-	/* Accept exactly one argument */
-	if len(args) != 1 {
-		fmt.Printf("Usage: %s Path\n", os.Args[0])
-		os.Exit(255)
-	}
 
-	path := os.Args[1]
-	/* If the path is absolute, save it in database  and exit*/
-	if filepath.IsAbs(path) {
-		savePath(path)
+	if len(args) > 1 {
+		/* Accept exactly one argument */
+		fmt.Printf("Usage: %s [dir]\n", os.Args[0])
 		return
 	}
 
-	pwd, err := os.Getwd()
-	panic_on_error(err)
+	if len(args) == 0 {
+		/* Without arguments, go to home directory */
+		Chdir(os.Getenv("HOME"))
+		return
+	}
 
-	fullpath := filepath.Join(pwd, path)
-	fileinfo, err := os.Stat(fullpath)
+	strategies := make([]StrategyFunc, 0)
+	strategies = append(strategies, func (path string) bool {
+		if path[0] == '.' {
+			switch {
+			case path == ".":
+				/* FIXME: circle */
+				return true
 
-	switch {
-	case path == ".":
-		/* FIXME: circle */
-		break
+			case all_characters_are(path, '.'):
+				cwd, err  := os.Getwd()
+				panic_on_error(err)
 
-	case all_characters_are(path, '.'):
-		/* FIXME: go parent */
-		upcount := len(path) - 1
-		for i := upcount; i > 0; i-- {
+				ups := len(path) - 1
+				parent := cwd
+				for i := ups; i > 0  && IsDirExists(parent) ; i-- {
+				 	parent = filepath.Dir(parent)
+				}
 
+				Chdir(parent)
+				return true
+
+			default:
+				/* otherwise, use default cd implementation */
+				Chdir(path)
+				return true
+			}
 		}
-		break
+		return false
+	})
 
-	case (!os.IsNotExist(err)  && fileinfo.IsDir()):
-		/* if the folder exists in current directory */
-		os.Chdir(fullpath)
-		break
+	path := os.Args[1]
+	Some(strategies, path)
+}
 
-	default:
-		/* FIXME: query db */
-		break
+func Some(functions []StrategyFunc, path string) {
+	for _, f := range functions {
+		if ret := f(path); ret == true {
+			break
+		}
 	}
 }
 
 const dbfilename = "went.csv"
-
 func savePath(path string) {
-	/* Check whether  path exists */
-	fileinfo, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		os.Exit(-1)
-	}
-
-	/* Check whether path is a directory */
-	if !fileinfo.IsDir() {
-		os.Exit(-1)
-	}
-
 	basename := filepath.Base(path)
 	d := dirmap.LoadDirMap(dbfilename)
 	d.Add(basename, path)
 	d.Save(dbfilename)
+}
+
+func Chdir(path string) {
+	fmt.Println(path)
+}
+
+func IsDirExists (path string) bool {
+	info, err := os.Stat(path)
+	return (err == nil && info.IsDir())
 }
