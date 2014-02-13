@@ -38,6 +38,12 @@ func (d *DirMap) Has(basename string) bool {
 	return exists
 }
 
+func (d *DirMap) Remove(basename string) {
+	if d.Has(basename) == true {
+		d.dirmap[basename].RemoveAt(0)
+	}
+}
+
 func (d *DirMap) Get(basename string) (path string) {
 	if d.Has(basename) == true {
 		return d.dirmap[basename].Get(0).(string)

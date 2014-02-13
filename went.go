@@ -24,6 +24,9 @@ func main() {
 
 	dir := os.Args[1]
 	TryStrategies(GetCdStrategies(), dir)
+
+	d := GetRecentlyVisitedDb()
+	d.Save(GetRecentlyVisitedDbPath())
 }
 
 /**
@@ -45,12 +48,8 @@ func GetCdStrategies() []CdStrategyFunc {
 			PanicOnError(err)
 			basename := filepath.Base(cwd)
 
-			if recentpath := GetRecentlyVisitedPath(basename); recentpath != "" {
+			if recentpath := GetNextRecentlyVisitedPath(basename); recentpath != "" {
 				ShellBuiltinCd(recentpath)
-
-				d := GetRecentlyVisitedDirDb()
-				d.ShiftRight(basename)
-				d.Save(GetRecentlyVisitedDbPath())
 				return true
 			}
 		}
@@ -67,12 +66,12 @@ func GetCdStrategies() []CdStrategyFunc {
 			parent, err  := os.Getwd()
 			PanicOnError(err)
 
-			gouptimes := len(path) - 1
-			for i := gouptimes; i > 0  && IsDirExists(parent) ; i-- {
+			parentcount := len(path) - 1
+			for i := parentcount; i > 0  && IsDirExists(parent) ; i-- {
 				parent = filepath.Dir(parent)
 			}
 
-			SavePathAsRecentlyVisited(parent)
+			AddPathToRecentlyVisited(parent)
 			ShellBuiltinCd(parent)
 			return true
 		}
@@ -88,7 +87,7 @@ func GetCdStrategies() []CdStrategyFunc {
 		PanicOnError(err)
 
 		if IsDirExists(abspath) {
-			SavePathAsRecentlyVisited(abspath)
+			AddPathToRecentlyVisited(abspath)
 			ShellBuiltinCd(abspath)
 			return true
 		}
@@ -99,10 +98,6 @@ func GetCdStrategies() []CdStrategyFunc {
 		basename := filepath.Base(path)
 		if recentpath := GetRecentlyVisitedPath(basename); recentpath != "" {
 			ShellBuiltinCd(recentpath)
-
-			d := GetRecentlyVisitedDirDb()
-			d.ShiftRight(basename)
-			d.Save(GetRecentlyVisitedDbPath())
 			return true
 		}
 
@@ -116,10 +111,6 @@ func GetCdStrategies() []CdStrategyFunc {
 		 */
 		ShellBuiltinCd(path)
 		return true
-
-		// FIMXE: Does the following really necessary
-		//if IsDirExists(path) {//SavePathAsRecentlyVisited(path) }
-
 	})
 
 	return strategies
@@ -146,29 +137,44 @@ func TryStrategies(functions []CdStrategyFunc, path string) {
 }
 
 /**
+ * Query the recently visited dir, and return the next path
+ */
+func GetNextRecentlyVisitedPath(basename string) string {
+	d := GetRecentlyVisitedDb()
+	d.ShiftRight(basename)
+	return GetRecentlyVisitedPath(basename)
+}
+
+/**
  * Query the recently visited dir, and return the path
  */
-func GetRecentlyVisitedPath(path string) string {
-	d := GetRecentlyVisitedDirDb()
-	return d.Get(filepath.Base(path))
+func GetRecentlyVisitedPath(basename string) string {
+	d := GetRecentlyVisitedDb()
+	recentpath := d.Get(basename)
+
+	for !IsDirExists(recentpath) && recentpath != "" {
+		d.Remove(basename)
+		recentpath = d.Get(basename)
+	}
+
+	return recentpath
 }
 
 /**
  * Saved the path in recently visited db, using its
  * basename as key
  */
-func SavePathAsRecentlyVisited(fullpath string) {
+func AddPathToRecentlyVisited(fullpath string) {
 	basename := filepath.Base(fullpath)
-	d := GetRecentlyVisitedDirDb()
+	d := GetRecentlyVisitedDb()
 	d.Add(basename, fullpath)
-	d.Save(GetRecentlyVisitedDbPath())
 }
 
 /**
  * Cache and return a DirMap of recently visited dirs
  */
 var _dirmap  *dirmap.DirMap
-func GetRecentlyVisitedDirDb() *dirmap.DirMap {
+func GetRecentlyVisitedDb() *dirmap.DirMap {
 	if _dirmap == nil {
 		_dirmap = dirmap.LoadDirMap(GetRecentlyVisitedDbPath())
 	}

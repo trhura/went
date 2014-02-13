@@ -42,6 +42,10 @@ func (r *OrderedCapSet) RemoveAt(i int) {
 	}
 }
 
+func (r *OrderedCapSet) Remove(elem interface{}) {
+	r.RemoveAt(r.IndexOf(elem))
+}
+
 const sizelimit = 3
 func (r *OrderedCapSet) resize() {
 	if(r.Len() > sizelimit) {
