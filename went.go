@@ -7,22 +7,6 @@ import (
 	"github.com/trhura/went/dirmap"
 )
 
-func panic_on_error(err error) {
-	if err == nil {
-		return
-	}
-	panic(err)
-}
-
-func all_characters_are (s string, c rune) bool {
-	for _, sc := range s {
-		if sc != c {
-			return false
-		}
-	}
-	return true
-}
-
 func main() {
 	args := os.Args[1:]
 
@@ -34,31 +18,39 @@ func main() {
 
 	if len(args) == 0 {
 		/* Without arguments, go to home directory */
-		Chdir(os.Getenv("HOME"))
+		ShellBuiltinCd(os.Getenv("HOME"))
 		return
 	}
 
-	path := os.Args[1]
-	Some(get_strategies(), path)
+	dir := os.Args[1]
+	TryStrategies(GetCdStrategies(), dir)
 }
 
-type StrategyFunc func(string) bool
+/**
+ * A func which take a relative/absolute path, and try to change cwd
+ * return true if succesfully changed cwd, otherwise false
+ */
+type CdStrategyFunc func(string) bool
 
-func get_strategies () []StrategyFunc {
-	strategies := make([]StrategyFunc, 0)
+/**
+ * return a list of strategies to change current working directory
+ */
+func GetCdStrategies() []CdStrategyFunc {
+	strategies := make([]CdStrategyFunc, 0)
 
 	strategies = append(strategies, func (path string) bool {
+		/* If the passed param is `.` */
 		if path == "." {
 			cwd, err := os.Getwd()
-			panic_on_error(err)
+			PanicOnError(err)
 			basename := filepath.Base(cwd)
 
-			if recentpath := GetRecentPath(basename); recentpath != "" {
-				Chdir(recentpath)
+			if recentpath := GetRecentlyVisitedPath(basename); recentpath != "" {
+				ShellBuiltinCd(recentpath)
 
-				d := GetDirMap()
+				d := GetRecentlyVisitedDirDb()
 				d.ShiftRight(basename)
-				d.Save(GetRecentDbPath())
+				d.Save(GetRecentlyVisitedDbPath())
 				return true
 			}
 		}
@@ -66,29 +58,38 @@ func get_strategies () []StrategyFunc {
 	})
 
 	strategies = append(strategies, func (path string) bool {
-		if all_characters_are(path, '.') && len(path) > 1 {
+		/* If the passed path contains all `.`, chdir into
+		 * corresponding parent directory.
+		 * `..` => parent folder
+		 * `...` => parent's parent fold and so on
+		 */
+		if AllCharsAre(path, '.') && len(path) > 1 {
 			parent, err  := os.Getwd()
-			ups := len(path) - 1
-			panic_on_error(err)
+			PanicOnError(err)
 
-			for i := ups; i > 0  && IsDirExists(parent) ; i-- {
+			gouptimes := len(path) - 1
+			for i := gouptimes; i > 0  && IsDirExists(parent) ; i-- {
 				parent = filepath.Dir(parent)
 			}
 
-			SavePath(parent)
-			Chdir(parent)
+			SavePathAsRecentlyVisited(parent)
+			ShellBuiltinCd(parent)
 			return true
 		}
 		return false
 	})
 
 	strategies = append(strategies, func (path string) bool {
+		/**
+		 * If the given path exists and is an absolute path, or
+		 * If the given dir exists in current directory,
+		 */
 		abspath, err := filepath.Abs(path)
-		panic_on_error(err)
+		PanicOnError(err)
 
 		if IsDirExists(abspath) {
-			SavePath(abspath)
-			Chdir(abspath)
+			SavePathAsRecentlyVisited(abspath)
+			ShellBuiltinCd(abspath)
 			return true
 		}
 		return false
@@ -96,12 +97,12 @@ func get_strategies () []StrategyFunc {
 
 	strategies = append(strategies, func (path string) bool {
 		basename := filepath.Base(path)
-		if recentpath := GetRecentPath(basename); recentpath != "" {
-			Chdir(recentpath)
+		if recentpath := GetRecentlyVisitedPath(basename); recentpath != "" {
+			ShellBuiltinCd(recentpath)
 
-			d := GetDirMap()
+			d := GetRecentlyVisitedDirDb()
 			d.ShiftRight(basename)
-			d.Save(GetRecentDbPath())
+			d.Save(GetRecentlyVisitedDbPath())
 			return true
 		}
 
@@ -109,19 +110,34 @@ func get_strategies () []StrategyFunc {
 	})
 
 	strategies = append(strategies, func (path string) bool {
-		if IsDirExists(path) { SavePath(path) }
-		Chdir(path)
+		/**
+		 * if no other strategy works,
+		 * just use the shell's builtin cd
+		 */
+		ShellBuiltinCd(path)
 		return true
+
+		// FIMXE: Does the following really necessary
+		//if IsDirExists(path) {//SavePathAsRecentlyVisited(path) }
+
 	})
 
 	return strategies
 }
 
-func Chdir(path string) {
+/**
+ * Print out the path, which will be piped
+ * into shell builtin cd
+ */
+func ShellBuiltinCd(path string) {
 	fmt.Println(path)
 }
 
-func Some(functions []StrategyFunc, path string) {
+/**
+ * Take a list of strategy funcs, iterate and evaluate each
+ * function in order, until one of the return `true`
+ */
+func TryStrategies(functions []CdStrategyFunc, path string) {
 	for _, f := range functions {
 		if ret := f(path); ret == true {
 			break
@@ -129,31 +145,69 @@ func Some(functions []StrategyFunc, path string) {
 	}
 }
 
-func GetRecentPath(path string) string {
-	d := GetDirMap()
+/**
+ * Query the recently visited dir, and return the path
+ */
+func GetRecentlyVisitedPath(path string) string {
+	d := GetRecentlyVisitedDirDb()
 	return d.Get(filepath.Base(path))
 }
 
-func SavePath(fullpath string) {
+/**
+ * Saved the path in recently visited db, using its
+ * basename as key
+ */
+func SavePathAsRecentlyVisited(fullpath string) {
 	basename := filepath.Base(fullpath)
-	d := GetDirMap()
+	d := GetRecentlyVisitedDirDb()
 	d.Add(basename, fullpath)
-	d.Save(GetRecentDbPath())
+	d.Save(GetRecentlyVisitedDbPath())
 }
 
+/**
+ * Cache and return a DirMap of recently visited dirs
+ */
 var _dirmap  *dirmap.DirMap
-func GetDirMap() *dirmap.DirMap {
+func GetRecentlyVisitedDirDb() *dirmap.DirMap {
 	if _dirmap == nil {
-		_dirmap = dirmap.LoadDirMap(GetRecentDbPath())
+		_dirmap = dirmap.LoadDirMap(GetRecentlyVisitedDbPath())
 	}
 	return _dirmap
 }
 
-func GetRecentDbPath() string {
+/**
+ * return path to storing the recently visited paths db
+ */
+func GetRecentlyVisitedDbPath() string {
 	return filepath.Join(os.Getenv("HOME"), ".went.recentf")
 }
 
-func IsDirExists (path string) bool {
+/**
+ * return true if path exists and is a directory, otherwise false
+ */
+func IsDirExists(path string) bool {
 	info, err := os.Stat(path)
 	return (err == nil && info.IsDir())
+}
+
+/**
+ * helper function to panic on error
+ */
+func PanicOnError(err error) {
+	if err == nil {
+		return
+	}
+	panic(err)
+}
+
+/**
+ * return true if all characters in `s` are `c`, otherwise false
+ */
+func AllCharsAre(s string, c rune) bool {
+	for _, sc := range s {
+		if sc != c {
+			return false
+		}
+	}
+	return true
 }
