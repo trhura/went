@@ -46,7 +46,13 @@ func (d *DirMap) Remove(basename string) {
 
 func (d *DirMap) Get(basename string) (path string) {
 	if d.Has(basename) == true {
-		return d.dirmap[basename].Get(0).(string)
+		item := d.dirmap[basename].Get(0)
+		if item != nil {
+			return item.(string)
+		} else {
+			return  ""
+		}
+
 	}
 	return path
 }
@@ -65,7 +71,7 @@ func (d *DirMap) GetAll(basename string) []string {
 	return all
 }
 
-func check_error(err error) {
+func PanicOnError(err error) {
 	if (err != nil) {
 		panic(err)
 	}
@@ -80,7 +86,7 @@ func LoadDirMap (filename string) *DirMap {
 
 	reader := csv.NewReader(f)
 	records, err := reader.ReadAll()
-	check_error(err)
+	PanicOnError(err)
 
 	for _, record := range records {
 		basename := record[0]
@@ -97,7 +103,7 @@ func (d *DirMap) Len () int {
 
 func (d *DirMap) Save (filename string) {
 	f, err := os.Create(filename)
-	check_error(err)
+	PanicOnError(err)
 	defer f.Close()
 
 	records := make([][]string, 0)
