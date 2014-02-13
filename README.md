@@ -16,6 +16,8 @@ those places
 
 ## Usage
 
+![Usage](doc/usage.png)
+
 Very simple. Just use `cd dirname` to go to last visited directory
 with that name. If there is more than one visited path with the same
 name, use `cd .` to iterate through those paths.
