@@ -1,11 +1,8 @@
 ## About
 
-`went` is a small go program, that let you go to recently visited
+`went` is a small `go` program, that let you go to recently visited
 directories by its basename without using its full/ path, when wrapped
-around the shell bulitin cd.
-
-+ zero-config
-+
+around the shell bulitin `cd`.
 
 ## Usage
 
