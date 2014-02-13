@@ -15,15 +15,17 @@ TODO
 
 Assuming you have installed golang, and configured `$GOPATH`.
 
-1. Get sources from github.
-```shell
++ Get sources from github.
+```sh
 go get github.com/trhura/went
 ```
-1. Compile.
-```shell
+
++ Compile.
+```sh
 cd $GOPATH/src/github.com/trhura/went && go build went.go
 ```
-1. Wrap the shell (Append this in your `.bashrc` or `.zshrc`)
+
++ Wrap the shell (Append this in your `.bashrc` or `.zshrc`)
 ```bash
 function went {
         builtin cd $($GOPATH/src/github.com/trhura/went/went $@)
