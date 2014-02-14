@@ -12,7 +12,7 @@ Being a simple wrapper around `cd`, there is no flag/option/setting to
 remember, and `want` tries not to interfere with normal `cd` usages.
 Actually, most of the time, you wouldn't even notice it is there. It
 just silenty keep track of where you have been and let's you revisit
-those places
+those places quickly.
 
 ## Usage
 
@@ -41,7 +41,7 @@ cd $GOPATH/src/github.com/trhura/went && go build went.go
 cd /usr/lib/go/src/pkg/github.com/trhura/went && go build went.go
 ```
 
-+ Wrap the shell (Add this in your `.bashrc` or `.zshrc`)
++ Wrap the shell builtin shell `cd`. (Add this in your `.bashrc` or `.zshrc`)
 ```bash
 function went {
         builtin cd $($GOPATH/src/github.com/trhura/went/went $@)
