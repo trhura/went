@@ -5,9 +5,9 @@ type OrderedCapSet struct {
 }
 
 func NewOrderedCapSet() (r *OrderedCapSet) {
-	r = new(OrderedCapSet)
-	r.slice = make([]interface{}, 0)
-	return
+	return &OrderedCapSet{
+		slice: make([]interface{}, 0),
+	}
 }
 
 func (r *OrderedCapSet) Len() int {

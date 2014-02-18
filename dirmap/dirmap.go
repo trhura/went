@@ -8,9 +8,9 @@ type DirMap struct {
 }
 
 func NewDirMap() *DirMap {
-	d := new(DirMap)
-	d.dirmap = make(map[string]*OrderedCapSet)
-	return d
+	return &DirMap{
+		dirmap: make(map[string]*OrderedCapSet),
+	}
 }
 
 func (d *DirMap) ShiftRight (basename string) {
