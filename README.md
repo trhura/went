@@ -50,7 +50,7 @@ function went {
 alias cd=went
 ```
 
-+ Completions (Put `cd.sh` in your `/etc/bash_completion.d`)
++ Completions (Put `cd_bash_completion.sh` in your `/etc/bash_completion.d` as `cd`)
 ```bash
-cp cd.sh /etc/bash_completion.d/cd
+cp cd_bash_completion.sh /etc/bash_completion.d/cd
 ```
