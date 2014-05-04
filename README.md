@@ -44,7 +44,7 @@ cd /usr/lib/go/src/pkg/github.com/trhura/went && go build went.go
 + Wrap the shell builtin shell `cd`. (Add this in your `.bashrc` or `.zshrc`)
 ```bash
 function went {
-        builtin cd $($GOPATH/src/github.com/trhura/went/went $@)
+        builtin cd "$($GOPATH/src/github.com/trhura/went/went $@)"
 }
 
 alias cd=went
