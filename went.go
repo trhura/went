@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"path/filepath"
 	"github.com/trhura/went/dirmap"
 )
@@ -10,19 +11,14 @@ import (
 func main() {
 	args := os.Args[1:]
 
-	if len(args) > 1 {
-		/* Accept exactly one argument */
-		fmt.Printf("Usage: %s [dir]\n", os.Args[0])
-		return
-	}
-
 	if len(args) == 0 {
 		/* Without arguments, go to home directory */
 		ShellBuiltinCd(os.Getenv("HOME"))
 		return
 	}
 
-	dir := os.Args[1]
+	/* Join the args with space */
+	dir := strings.Join(args[0:], " ")
 	TryStrategies(GetCdStrategies(), dir)
 
 	d := GetRecentlyVisitedDb()
