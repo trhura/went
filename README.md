@@ -50,7 +50,19 @@ function went {
 alias cd=went
 ```
 
-+ Completions (Put `cd_bash_completion.sh` in your `/etc/bash_completion.d` as `cd`)
+## Completions
+
++ Bash – Put `cd_bash_completion.sh` in your `/etc/bash_completion.d` as `cd`)
 ```bash
 cp cd_bash_completion.sh /etc/bash_completion.d/cd
+```
+
++ Zsh – Put `cd_zsh_completion.sh` in your `$fpath`, and reload completions in your `.zshrc`.
+
+```bash
+cp cd_zsh_completion.sh ~/.zsh/_cd
+
+## put these two lines in your ~/.zshrc
+fpath=($fpath ~/.zsh/)
+rm -f ~/.zcompdump; compinit # rebuild completions
 ```
