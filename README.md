@@ -54,7 +54,12 @@ alias cd=went
 
 + Bash – Put `cd_bash_completion.sh` in your `/etc/bash_completion.d` as `cd`)
 ```bash
+# Linux
 cp cd_bash_completion.sh /etc/bash_completion.d/cd
+
+# Mac
+brew install bash-completion && brew tap homebrew/completions # install completions
+cp cd_bash_completion.sh $(brew --prefix)/etc/bash_completion.d/cd
 ```
 
 + Zsh – Put `cd_zsh_completion.sh` in your `$fpath`, and reload completions in your `.zshrc`.
@@ -65,4 +70,10 @@ cp cd_zsh_completion.sh ~/.zsh/_cd
 ## put these two lines in your ~/.zshrc
 fpath=($fpath ~/.zsh/)
 rm -f ~/.zcompdump; compinit # rebuild completions
+```
+
+## Troubleshooting
+
+```bash
+rm -f $HOME/.went.recentf && touch $HOME/.went.recentf
 ```
