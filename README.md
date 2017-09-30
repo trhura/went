@@ -1,6 +1,6 @@
 ## About
 
-`went` is a small `go` program, that let you go to recently visited
+`went` is a small `python` script, that let you go to recently visited
 directories by its basename without using its full path, when wrapped
 around the shell bulitin `cd`.
 
@@ -27,53 +27,24 @@ directories, are also available.
 
 ## Installation
 
-Assuming you have installed golang, and configured `$GOPATH`.
-
-+ Get the sources from github.
+Simpy put went.py under any of your $PATH and make it executable.
 ```sh
-go get github.com/trhura/went
-```
-
-+ You may need to compile the binary.
-```sh
-cd $GOPATH/src/github.com/trhura/went && go build went.go
-# Or this, depending upon your system
-cd /usr/lib/go/src/pkg/github.com/trhura/went && go build went.go
+curl https://raw.githubusercontent.com/trhura/went/master/went.py -o /usr/bin/went.py && chmod +x /usr/bin/went.py
 ```
 
 + Wrap the shell builtin shell `cd`. (Add this in your `.bashrc` or `.zshrc`)
 ```bash
 function went {
-        builtin cd "$($GOPATH/src/github.com/trhura/went/went $@)"
+        builtin cd "$(/usr/bin/went.py $@)"
 }
 
 alias cd=went
 ```
 
-## Completions
-
-+ Bash – Put `cd_bash_completion.sh` in your `/etc/bash_completion.d` as `cd`)
-```bash
-# Linux
-cp cd_bash_completion.sh /etc/bash_completion.d/cd
-
-# Mac
-brew install bash-completion && brew tap homebrew/completions # install completions
-cp cd_bash_completion.sh $(brew --prefix)/etc/bash_completion.d/cd
-```
-
-+ Zsh – Put `cd_zsh_completion.sh` in your `$fpath`, and reload completions in your `.zshrc`.
-
-```bash
-cp cd_zsh_completion.sh ~/.zsh/_cd
-
-## put these two lines in your ~/.zshrc
-fpath=($fpath ~/.zsh/)
-rm -f ~/.zcompdump; compinit # rebuild completions
-```
-
 ## Troubleshooting
 
++ If case you run into some bugs, removing history configuration file should resolve most issues. 
+
 ```bash
-rm -f $HOME/.went.recentf && touch $HOME/.went.recentf
+rm -f $HOME/.went.directories
 ```

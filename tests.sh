@@ -5,11 +5,10 @@ source "./assert.sh"
 ##############################
 ### Build go binaries and setup
 ##############################
-go build went.go
-WENT=$(pwd)/went
+WENT=$(pwd)/went.py
 
 HOME="/tmp"
-rm -f "$HOME/.went.recentf"
+rm -f "$HOME/.went.directories"
 TESTROOT=$(pwd)/wenttmp ##### WILL BE DELETED #####
 
 ##############################
