@@ -1,26 +1,28 @@
+## Name
+
+went - a smarter cd for terminal addicts
+
 ## About
 
-`went` is a small `python` script, that let you go to recently visited
-directories by its basename without using its full path, when wrapped
-around the shell bulitin `cd`.
+Ever got tired of typing full directory paths to navigate in terminal?
+No more! `went` is a small `python` script, which takes you to your
+recently visited directories by merely typing directory name.
 
-Although there are similar and more feature-savy tools, like
-[autojump] (https://github.com/joelthelion/autojump), `went` differs
-from other tools in its simplicity and unobtrusiveness.
+The beauty of `went` over similar tools is its simplicity and ease of
+use. It is a simple wrapper around built-in `cd` command. 
 
-Being a simple wrapper around `cd`, there is no flag/option/setting to
-remember, and `want` tries not to interfere with normal `cd` usages.
-Actually, most of the time, you wouldn't even notice it is there. It
-just silenty keep track of where you have been and let's you revisit
-those places quickly.
+So, there is no additional command nor flags to remember, and actually,
+most of the time, you wouldn't even notice it is there. It just silenty
+keep track of where you have been and let's you revisit those places
+quickly.
 
 ## Usage
-
-![Usage](doc/usage.png)
 
 Very simple. Just use `cd dirname` to go to last visited directory
 with that name. If there is more than one visited path with the same
 name, use `cd .` to iterate through those paths.
+
+![Usage](doc/usage.png)
 
 A few other useful shortcuts, like using `cd ..[...]` to go up parent
 directories, are also available.
@@ -47,4 +49,4 @@ alias cd=went
 
 ```bash
 rm -f $HOME/.went.directories
-```
+``` 
