@@ -38,9 +38,12 @@ curl https://raw.githubusercontent.com/trhura/went/master/went.py -o /usr/bin/we
 + Wrap the shell builtin shell `cd`. (Add this in your `.bashrc` or `.zshrc`)
 ```bash
 function went {
-        builtin cd "$(/usr/bin/went.py $@)"
+    if [ -n "$1" ]; then ESCAPED_PATH=$(printf %q "$1")
+    else ESCAPED_PATH=$1; fi
+    
+    DIRECTORY=$(/usr/local/bin/went.py "$ESCAPED_PATH")
+    builtin cd "$(eval echo ${DIRECTORY})"
 }
-
 alias cd=went
 ```
 
