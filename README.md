@@ -1,6 +1,6 @@
 ## Name
 
-went - a smarter cd for terminal addicts
+went - a smarter cd for terminal addicts, that remembers where you have been. 
 
 ## Description
 
