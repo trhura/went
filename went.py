@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 # Author: Thura Hlaing <trhura@gmail.com>
-# Time-stamp: <2017-09-30 18:03:59 (trhura)>
+# Time-stamp: <2017-11-17 10:41:04 (thurahlaing)>
 
 __author__ = "Thura Hlaing <trhura@gmail.com>"
 __copyright__ = "Copyright 2017, Planet Earth"
 
 import os
 import sys
-import cPickle
+import pickle
 import os.path
 
 class RecentlyVisitedDirectories:
@@ -43,7 +43,7 @@ class RecentlyVisitedDirectories:
     def __init__(self):
         try:
             with open(self.CONFIG_FILE, 'rb') as configFile:
-                self.pathsbydir = cPickle.load (configFile)
+                self.pathsbydir = pickle.load (configFile)
         except: pass
 
     def __save__(self):
@@ -52,7 +52,7 @@ class RecentlyVisitedDirectories:
             self.pathsbydir[k] = v[:3] # only save the firs three paths
             
         with open(self.CONFIG_FILE, 'wb') as configFile:
-            cPickle.dump (self.pathsbydir, configFile)
+            pickle.dump (self.pathsbydir, configFile)
 
 WORKING_DIRECTORY = os.getcwd()
 RECENT_DIRECTORIES = RecentlyVisitedDirectories() 
